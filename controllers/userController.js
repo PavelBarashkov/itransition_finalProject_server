@@ -3,9 +3,9 @@ const {User} = require('../models/models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const generateJwt = function(id, email, role, registrationDate) {
+const generateJwt = function(id, name, email, role, registrationDate) {
     return jwt.sign(
-        {id, email, role, registrationDate}, 
+        {id, name, email, role, registrationDate}, 
         process.env.SECRET_KEY,
         {expiresIn: '24h'}
     )
@@ -28,7 +28,7 @@ class UserController {
 
         const hashPassword = await bcrypt.hash(password, 5);
         const user = await User.create({name, email, role, password: hashPassword, registrationDate: date.toLocaleString()});
-        const token = generateJwt(user.id, user.email, user.role, user.registrationDate);
+        const token = generateJwt(user.id, user.name, user.email, user.role, user.registrationDate);
         return res.json({token});
     }
     
@@ -45,12 +45,12 @@ class UserController {
             return next(ApiError.badRequest('Не верный пароль'));
 
         }
-        const token = generateJwt(user.id, user.email, user.role, user.registrationDate);
+        const token = generateJwt(user.id, user.name, user.email, user.role, user.registrationDate);
         return res.json({token});
     }
 
     async check(req, res, next) {
-       const token = generateJwt(req.id, req.email, req.role, req.registrationDate);
+       const token = generateJwt(req.id, req.name, req.email, req.role, req.registrationDate);
        return res.json({token});
     }
 

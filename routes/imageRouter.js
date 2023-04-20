@@ -1,10 +1,10 @@
-const Router = require('express');
-const router = new Router();
+    const Router = require('express');
+    const router = new Router();
 
-// загрузка изображения
-router.post('/',);
+    // загрузка изображения
+    router.post('/',);
 
-// получение изображения по id
-router.get('/',);
+    // получение изображения по id
+    router.get('/',);
 
-module.exports = router;
+    module.exports = router;

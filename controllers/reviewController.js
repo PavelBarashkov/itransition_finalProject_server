@@ -79,8 +79,8 @@ class ReviewController{
 
     async create(req, res, next) {
         try {
-            const { title, body, rating, userId, type, tag } = req.body;
-            const review = await Review.create({ title, body, rating, userId });
+            const { title, name, body, rating, userId, type, tag } = req.body;
+            const review = await Review.create({ title, name,  body, rating, userId });
           
             const typeRewiew = await Type.findByPk(type);
             await review.addType(typeRewiew);

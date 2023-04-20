@@ -14,11 +14,11 @@ const User = sequelize.define('user', {
     email: {
         type: DataTypes.STRING,
         unique: true,
-        allowNull:false
+        allowNull: false
     },
     password: {
         type: DataTypes.STRING,
-        allowNull:false
+        allowNull: false
     },
     registrationDate: {
         type: DataTypes.STRING,
@@ -37,6 +37,10 @@ const Review = sequelize.define('review', {
         primaryKey: true,
     },
     title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    name: {
         type: DataTypes.STRING,
         allowNull: false,
     },
