@@ -1,4 +1,4 @@
-const {Review, Tag, Type, Comment} = require('../models/models');
+const {Review, Tag, Type, Comment, Image} = require('../models/models');
 const ApiError = require('../error/ApiError');
 
 
@@ -79,19 +79,21 @@ class ReviewController{
 
     async create(req, res, next) {
         try {
-            const { title, name, body, rating, userId, type, tag } = req.body;
+            const { title, name, body, rating, userId, tag } = req.body;
+            const { image, type} = req.query;
             const review = await Review.create({ title, name,  body, rating, userId });
           
             const typeRewiew = await Type.findByPk(type);
             await review.addType(typeRewiew);
 
+            const imageRewiew = await Image.findByPk(image);
+            await review.addImage(imageRewiew);
+
             const tagPromises = tag.map(tagName => {
                 return Tag.findOrCreate({ where: { name: tagName } });
             });
-          
             const tagInstances = await Promise.all(tagPromises);
             const tagIds = tagInstances.map(tag => tag[0].id);
-          
             await review.addTags(tagIds);
           
             return res.json(review);
@@ -107,6 +109,11 @@ class ReviewController{
                 {
                     where: {id},
                     include: [
+                        {
+                            model: Image,
+                            attributes: ['pathToCloudStorage'],
+                            through: {attributes: []},
+                        }, 
                         {
                             model: Type,
                             attributes: ['name'],
