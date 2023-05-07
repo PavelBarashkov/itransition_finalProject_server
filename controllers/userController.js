@@ -50,13 +50,21 @@ class UserController {
     }
 
     async check(req, res, next) {
-       const token = generateJwt(req.id, req.name, req.email, req.role, req.registrationDate);
+       const token = generateJwt(req.user.id, req.user.name, req.user.email, req.user.role, req.user.registrationDate);
        return res.json({token});
     }
 
     async getAll(req, res, next) {
         const users = await User.findAll();
         return res.json(users)
+    }
+
+    async getUserId(req, res, next) {
+        const user = await User.findByPk(req.params.id);
+        if(!user) {
+            return next(ApiError.badRequest('пользователь не найден'));
+        }
+        res.json(user)
     }
 }
 

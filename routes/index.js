@@ -8,7 +8,7 @@ const tagRouter = require('./tagRouter');
 const socialNetworkRouter = require('./socialNetworkRouter');
 const ratingRouter = require('./ratingRouter');
 const typeRouter = require('./typeRouter');
-
+const productRouter = require('./productRouter');
 
 
 
@@ -20,6 +20,8 @@ router.use('/tag', tagRouter);
 router.use('/authSocial', socialNetworkRouter);
 router.use('/rating', ratingRouter);
 router.use('/type', typeRouter);
+router.use('/product', productRouter);
+
 
 
 

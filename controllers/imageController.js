@@ -16,7 +16,14 @@ class ImageController {
         const form = formidable({ multiples: true });
         try {
             form.parse(req, (err, fields, files) => {
-                const result =  cloudinary.uploader.upload(files.file.filepath);
+                const result =  cloudinary.uploader.upload(files.file.filepath, {
+                  public_id: files.name, 
+                  width: 782,
+                  height: 1200,
+                  crop: 'fill',
+                  quality: 80
+                });
+               
                 result.then(async (data) => {
                   console.log(data);
                   console.log(data.secure_url);

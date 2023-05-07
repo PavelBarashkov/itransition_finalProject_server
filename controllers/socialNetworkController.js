@@ -5,12 +5,12 @@ const bcrypt = require('bcrypt');
 const ApiError = require('../error/ApiError');
 
 
-const client = new OAuth2Client('115284206815-itf8mprr1ioqj9pltsd2fqoiv5r7dqjs.apps.googleusercontent.com');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT);
 
 async function verify(token) {
   const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: '115284206815-itf8mprr1ioqj9pltsd2fqoiv5r7dqjs.apps.googleusercontent.com',
+      audience: process.env.GOOGLE_CLIENT,
   });
   const {given_name, email} = ticket.getPayload();
   return {given_name, email};
@@ -27,8 +27,8 @@ const generateJwt = function(id, name, email, role, registrationDate) {
 
 const {Facebook} = require('fb');
 const fb = new Facebook({
-  appId: '1992083367821148',
-  appSecret: 'c2040654cb3eba86468c127b86c797e8',
+  appId: process.env.FACE_BOOK_AAP_ID,
+  appSecret: process.env.FACE_BOOK_AAP_Secret,
   version: 'v11.0'
 });
 

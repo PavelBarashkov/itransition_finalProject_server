@@ -11,11 +11,18 @@ router.post('/create', reviewController.create);
 // для отображения страницы отдельного обзора
 router.get('/:id', reviewController.getId);
 
+// для получения всех обзоров для определенного пользователя
+router.get('/user/:id', reviewController.getUserId);
+
 // для удаления обзора 
-router.get('/:id/delete',);
+router.get('/delete/:id', reviewController.deleteReview);
 
 // для поиска обзоров
 router.get('/search',);
 
+router.put('/update/:id', reviewController.updateReview);
+
+
+router.post('/review/:id/like', reviewController.likeReview)
 
 module.exports = router;

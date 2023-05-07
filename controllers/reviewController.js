@@ -1,4 +1,4 @@
-const {Review, Tag, Type, Comment, Image} = require('../models/models');
+const {Review, Tag, Type, Comment, Image, Rating, Like, User, Product} = require('../models/models');
 const ApiError = require('../error/ApiError');
 
 
@@ -14,7 +14,36 @@ class ReviewController{
 
             let review;
             if(!typeId && !tagId) {
-                review = await Review.findAndCountAll({limit, offset});
+                review = await Review.findAndCountAll(
+                    {
+                        include: [
+                            {
+                                model: Type,
+                                attributes: ["name"],
+                                through: {attributes: []},  
+                            },
+                            {
+                                model: Product,
+                                attributes: ['name', 'id', 'averageRating'],
+                                through: {attributes: []},
+    
+                            },
+                            {
+                                model: Image,
+                                attributes: ['pathToCloudStorage'],
+                                through: {attributes: []},
+                            },
+                            {
+                                model: Tag,
+                                attributes: ['name'],
+                                through: {attributes: []},  
+                            },
+                        ], 
+                        distinct: true, 
+                        limit, 
+                        offset,
+                    }
+                )
             }
             if(typeId && !tagId) {
                 review = await Review.findAndCountAll(
@@ -26,7 +55,24 @@ class ReviewController{
                                 attributes: ["name"],
                                 through: {attributes: []},  
                             },
+                            {
+                                model: Product,
+                                attributes: ['name', 'id', 'averageRating'],
+                                through: {attributes: []},
+    
+                            },
+                            {
+                                model: Image,
+                                attributes: ['pathToCloudStorage'],
+                                through: {attributes: []},
+                            },
+                            {
+                                model: Tag,
+                                attributes: ['name'],
+                                through: {attributes: []},  
+                            },
                         ], 
+                        distinct: true, 
                         limit, 
                         offset,
                     }
@@ -41,8 +87,25 @@ class ReviewController{
                                 where: {id: tagName},
                                 attributes: ['name'],
                                 through: {attributes: []},  
-                            }
+                            },
+                            {
+                                model: Product,
+                                attributes: ['name', 'id', 'averageRating'],
+                                through: {attributes: []},
+    
+                            },
+                            {
+                                model: Image,
+                                attributes: ['pathToCloudStorage'],
+                                through: {attributes: []},
+                            },
+                            {
+                                model: Type,
+                                attributes: ["name"],
+                                through: {attributes: []},  
+                            },
                         ],
+                        distinct: true, 
                         limit, 
                         offset,
                     }, 
@@ -52,6 +115,12 @@ class ReviewController{
                 review = await Review.findAndCountAll(
                     {
                         include: [
+                            {
+                                model: Product,
+                                attributes: ['name', 'id', 'averageRating'],
+                                through: {attributes: []},
+    
+                            },
                             {
                                 model: Type,
                                 where: {id: typeId},
@@ -63,8 +132,14 @@ class ReviewController{
                                 where: {id: tagName},
                                 attributes: ['name'],
                                 through: {attributes: []},  
-                            }
+                            },
+                            {
+                                model: Image,
+                                attributes: ['pathToCloudStorage'],
+                                through: {attributes: []},
+                            },
                         ],
+                        distinct: true, 
                         limit, 
                         offset,
                     },
@@ -79,15 +154,20 @@ class ReviewController{
 
     async create(req, res, next) {
         try {
-            const { title, name, body, rating, userId, tag } = req.body;
-            const { image, type} = req.query;
-            const review = await Review.create({ title, name,  body, rating, userId });
+            const { title, product, body, rating, userId, tag, image, type } = req.body;
+            const review = await Review.create({ title, body, rating, userId, createReview: new Date().toLocaleString()});
+
+
+            const productReview = await Product.findOrCreate({ where: { name: product }});
+            await review.addProduct(productReview[0]);
           
             const typeRewiew = await Type.findByPk(type);
             await review.addType(typeRewiew);
 
             const imageRewiew = await Image.findByPk(image);
             await review.addImage(imageRewiew);
+
+
 
             const tagPromises = tag.map(tagName => {
                 return Tag.findOrCreate({ where: { name: tagName } });
@@ -98,7 +178,7 @@ class ReviewController{
           
             return res.json(review);
         } catch (e) {
-            next(ApiError.badRequest(e.message));
+            next(ApiError.badRequest('en: Incorrect fields/ ru: Некорректные поля'));
         }
       }
       
@@ -111,8 +191,61 @@ class ReviewController{
                     include: [
                         {
                             model: Image,
-                            attributes: ['pathToCloudStorage'],
+                            attributes: ['pathToCloudStorage', 'id'],
                             through: {attributes: []},
+                        }, 
+                        {
+                            model: Product,
+                            attributes: ['name', 'id', 'averageRating'],
+                            through: {attributes: []},
+
+                        },
+                        {
+                            model: Type,
+                            attributes: ['name'],
+                            through: {attributes: []},
+
+                        }, 
+                        {
+                            model: Tag,
+                            attributes: ['name'],
+                            through: {attributes: []},
+                        }, 
+                        {
+                            model: Comment,
+                            attributes: ['userId', "createComment", "body"],
+                        },
+
+                    ],
+                
+                },
+            )
+            return res.json(review);
+        } catch (e) {
+            next(ApiError.badRequest(e.message));
+        }
+        
+    }   
+
+    async search(req, res) {
+    }
+
+    async getUserId(req, res, next) {
+        try {
+            const { id: userId } = req.params;
+            const reviews = await Review.findAll({
+                where: {userId: userId},
+                    include: [
+                        {
+                            model: Image,
+                            attributes: ['pathToCloudStorage', 'id'],
+                            through: {attributes: []},
+                        }, 
+                        {
+                            model: Product,
+                            attributes: ['name', 'id'],
+                            through: {attributes: []},
+
                         }, 
                         {
                             model: Type,
@@ -128,23 +261,86 @@ class ReviewController{
                         {
                             model: Comment,
                             attributes: ['userId', "createComment", "body"],
-                        }
+                        },
+
                     ],
-                
-                },
-            )
-            return res.json(review);
+            });
+            return res.json({reviews})
         } catch (e) {
-            next(ApiError.badRequest(e.message));
+            return next(ApiError.badRequest('У вас нет обзоров'))
         }
-        
-    }   
-
-    async delete(req, res) {
-    }    
-
-    async search(req, res) {
     }
+
+    async deleteReview(req, res, next) {
+        try {
+            const review = await Review.findByPk(req.params.id);
+            await review.destroy()
+            return res.json({message: 'Review delete'})
+        } catch(e) {    
+            return next(ApiError.badRequest('Ошибка'))
+        }
+    }       
+
+    async updateReview(req, res, next) {
+        try {
+            const { title, name, body, rating, tag, type , imageId} = req.body;
+            const review = await Review.findByPk(req.params.id);
+            if (!review) {
+              return next(ApiError.notFound('Review not found'));
+            }
+            review.title = title;
+            review.name = name;
+            review.body = body;
+            review.rating = rating;
+            await review.save();
+        
+            const imageInstances = await Image.findAll({where: {id: imageId}});
+            await review.setImages(imageInstances);
+
+            const typeInstances = await Type.findAll({ where: { name: type } });
+            await review.setTypes(typeInstances);
+              
+            const tagPromises = tag.map(tagName => {
+              return Tag.findOrCreate({ where: { name: tagName } });
+            });
+            const tagInstances = await Promise.all(tagPromises);
+            const tagIds = tagInstances.map(tag => tag[0].id);
+            await review.setTags(tagIds);
+        
+            return res.json(review);
+          } catch (e) {
+            next(ApiError.badRequest(e.message));
+          }
+    }
+
+
+    async likeReview(req, res, next) {
+        const reviewId = req.params.id;
+        const userId = req.body.userId;
+        const like = await Like.findOne({
+            where: {
+                userId,
+                reviewId,
+            },
+        });
+        if (like) {
+            return res.status(400).send('You have already liked this review');
+        }
+        await Like.create({
+            userId,
+            reviewId,
+        });
+        const review = await Review.findByPk(reviewId);
+        await review.increment('likeCount');
+        await review.save();
+    
+        const user = await User.findByPk(review.userId);
+        await user.increment('likeCount');
+        await user.save();
+    
+        res.send('Review liked');
+    }
+    
 }
 
 module.exports = new ReviewController();

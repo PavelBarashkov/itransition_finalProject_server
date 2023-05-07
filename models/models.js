@@ -28,6 +28,10 @@ const User = sequelize.define('user', {
         type: DataTypes.STRING,
         defaultValue: 'USER'
     },
+    likeCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+    }
 });
 
 const Review = sequelize.define('review', {
@@ -40,10 +44,6 @@ const Review = sequelize.define('review', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
     body: {
         type: DataTypes.TEXT,
         allowNull: false,
@@ -53,13 +53,55 @@ const Review = sequelize.define('review', {
         allowNull: false,
     },
     createReview: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING,
     },
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    likeCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+    }
 });
+
+const Product = sequelize.define('product', {
+    id: {
+        type: DataTypes.INTEGER, 
+        primaryKey: true, 
+        autoIncrement: true},
+    name: {
+        type: DataTypes.STRING, 
+        unique: true, 
+        allowNull: false
+    },
+    averageRating: {
+        type: DataTypes.DECIMAL(5, 2),
+        validate: {
+            isDecimal: true,
+            min: 0,
+            max: 5,
+        },
+        defaultValue: 0
+    },
+})
+
+const ReviewProduct = sequelize.define('review_product', {
+    reviewId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Review, 
+            key: 'id'
+        }
+    },
+    productId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Product, 
+            key: 'id'
+        }   
+    }
+})
 
 const Type = sequelize.define('type', {
     id: {
@@ -191,7 +233,7 @@ const Rating = sequelize.define('rating', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-    reviewId: {
+    productId: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
@@ -217,8 +259,25 @@ const SocialNetwork = sequelize.define('socialNetwork', {
     },
 });
 
+const Like = sequelize.define('like', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+});
+
+Like.belongsTo(User, { foreignKey: 'userId' });
+Like.belongsTo(Review, { foreignKey: 'reviewId' });
+
+User.hasMany(Like, { foreignKey: 'userId' });
+Review.hasMany(Like, { foreignKey: 'reviewId' });
+
 Review.belongsTo(User, {foreignKey: 'userId'});
 User.hasMany(Review, {foreignKey: 'userId'});
+
+Review.belongsToMany(Product, { through: ReviewProduct });
+Product.belongsToMany(Review, { through: ReviewProduct });
 
 Review.belongsToMany(Type, { through: ReviewType });
 Type.belongsToMany(Review, { through: ReviewType });
@@ -232,8 +291,8 @@ Image.belongsToMany(Review, { through: ReviewImage });
 User.hasMany(Comment, { foreignKey: 'userId' });
 Review.hasMany(Comment, { foreignKey: 'reviewId' });
 
-Rating.belongsTo(User, { foreignKey: 'userId' });
-Rating.belongsTo(Review, { foreignKey: 'reviewId' });
+Product.hasMany(Rating);
+Rating.belongsTo(Product);
 
 User.hasMany(SocialNetwork, { foreignKey: 'userId' });
 SocialNetwork.hasMany(User, { foreignKey: 'userId' });
@@ -249,4 +308,6 @@ module.exports = {
     Comment,
     Rating,
     SocialNetwork,
+    Like,
+    Product
 }
