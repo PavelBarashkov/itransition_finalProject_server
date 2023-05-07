@@ -11,7 +11,7 @@ const app = express();
 
 
 
-app.use(cors({ origin: 'https://itransitionfinalprojectclient-production.up.railway.app', credentials: true }));
+app.use(cors({ origin: 'https://itransition-final-project-client-88jfj7mdl-pavelbarashkov.vercel.app', credentials: true }));
 app.use(express.json());
 app.use('/api', router);
 
