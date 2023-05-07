@@ -8,8 +8,8 @@ class TagController {
     }
     
     async create(req, res) {
-        const {name, reviewId} = req.body;
-        const tag = await Tag.create({name, reviewId});
+        const {name} = req.body;
+        const tag = await Tag.create({name});
         return res.json(tag)
     } 
 

@@ -1,10 +1,7 @@
 const Router = require('express');
 const router = new Router();
+const imageController = require('../controllers/imageController');
 
-// загрузка изображения
-router.post('/',);
-
-// получение изображения по id
-router.get('/',);
+router.post('/upload', imageController.upload);
 
 module.exports = router;
