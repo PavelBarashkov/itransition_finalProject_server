@@ -9,9 +9,10 @@ const errorHandler = require('./milddleware/ErrorHandlingMiddleware');
 const PORT = process.env.PORT || 5000;
 const app = express();
 
+const urlDeploy = 'https://itransition-final-project-client-88jfj7mdl-pavelbarashkov.vercel.app'
+const localUrl = 'http://localhost:5000'
 
-
-app.use(cors({ origin: 'https://itransition-final-project-client-88jfj7mdl-pavelbarashkov.vercel.app', credentials: true }));
+app.use(cors({ origin: urlDeploy || localUrl, credentials: true }));
 app.use(express.json());
 app.use('/api', router);
 
