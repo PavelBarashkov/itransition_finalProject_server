@@ -10,6 +10,7 @@ const ratingRouter = require('./ratingRouter');
 const typeRouter = require('./typeRouter');
 const productRouter = require('./productRouter');
 
+const searchRouter = require('./searchRouter')
 
 
 router.use('/user', userRouter);
@@ -22,6 +23,7 @@ router.use('/rating', ratingRouter);
 router.use('/type', typeRouter);
 router.use('/product', productRouter);
 
+router.use('/search', searchRouter)
 
 
 

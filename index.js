@@ -6,9 +6,13 @@ const models = require('./models/models');
 const router = require('./routes/index');
 const errorHandler = require('./milddleware/ErrorHandlingMiddleware');
 
+const http = require('http');
+const WebSoket = require('ws');
+
+
 const PORT = process.env.PORT || 5000;
 const app = express();
-
+const server = http.createServer(app)
 
 
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));

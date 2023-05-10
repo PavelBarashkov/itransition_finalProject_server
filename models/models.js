@@ -291,6 +291,7 @@ Image.belongsToMany(Review, { through: ReviewImage });
 User.hasMany(Comment, { foreignKey: 'userId' });
 Review.hasMany(Comment, { foreignKey: 'reviewId' });
 
+
 Product.hasMany(Rating);
 Rating.belongsTo(Product);
 
