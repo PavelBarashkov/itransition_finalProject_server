@@ -210,6 +210,9 @@ const Comment = sequelize.define('comment', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    userName: {
+        type: DataTypes.STRING,
+    },
     reviewId: {
         type: DataTypes.INTEGER,
         allowNull: false,
