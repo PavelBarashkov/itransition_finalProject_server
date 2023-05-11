@@ -210,6 +210,9 @@ const Comment = sequelize.define('comment', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    userName: {
+        type: DataTypes.STRING,
+    },
     reviewId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -290,6 +293,7 @@ Image.belongsToMany(Review, { through: ReviewImage });
 
 User.hasMany(Comment, { foreignKey: 'userId' });
 Review.hasMany(Comment, { foreignKey: 'reviewId' });
+
 
 Product.hasMany(Rating);
 Rating.belongsTo(Product);

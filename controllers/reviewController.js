@@ -13,6 +13,12 @@ class ReviewController{
             let tagName = tagId ? tagId : [];
 
             let review;
+            let order = [
+                [{ model: Product }, 'averageRating', 'DESC'],
+                ['likeCount', 'DESC'],
+                ['createReview', 'DESC'],
+                ['id', 'DESC'],
+              ];
             if(!typeId && !tagId) {
                 review = await Review.findAndCountAll(
                     {
@@ -42,6 +48,7 @@ class ReviewController{
                         distinct: true, 
                         limit, 
                         offset,
+                        order,
                     }
                 )
             }
@@ -75,6 +82,7 @@ class ReviewController{
                         distinct: true, 
                         limit, 
                         offset,
+                        order,
                     }
                 );
             }
@@ -108,6 +116,7 @@ class ReviewController{
                         distinct: true, 
                         limit, 
                         offset,
+                        order,
                     }, 
                 )
             }
@@ -142,6 +151,7 @@ class ReviewController{
                         distinct: true, 
                         limit, 
                         offset,
+                        order,
                     },
                     
                 )
@@ -155,20 +165,24 @@ class ReviewController{
     async create(req, res, next) {
         try {
             const { title, product, body, rating, userId, tag, image, type } = req.body;
+    
+            // Проверяем, что значение type существует
+            if (!type) {
+                throw new Error('Type is required');
+            }
+    
             const review = await Review.create({ title, body, rating, userId, createReview: new Date().toLocaleString()});
-
-
+    
             const productReview = await Product.findOrCreate({ where: { name: product }});
             await review.addProduct(productReview[0]);
           
+            
             const typeRewiew = await Type.findByPk(type);
             await review.addType(typeRewiew);
-
+    
             const imageRewiew = await Image.findByPk(image);
             await review.addImage(imageRewiew);
-
-
-
+    
             const tagPromises = tag.map(tagName => {
                 return Tag.findOrCreate({ where: { name: tagName } });
             });
@@ -178,9 +192,9 @@ class ReviewController{
           
             return res.json(review);
         } catch (e) {
-            next(ApiError.badRequest('en: Incorrect fields/ ru: Некорректные поля'));
+            next(ApiError.badRequest('en: Incorrect fields/ ru: Некорректные поля: ' + e.message));
         }
-      }
+    }
       
     async getId(req, res, next) {
         const {id} = req.params
@@ -213,7 +227,7 @@ class ReviewController{
                         }, 
                         {
                             model: Comment,
-                            attributes: ['userId', "createComment", "body"],
+                            attributes: ['userId', "createComment", "body", "userName"],
                         },
 
                     ],

@@ -8,6 +8,7 @@ class CommentController {
             const date = new Date();
             const comment = await Comment.create({
                 userId: req.body.userId,
+                userName: req.body.userName,
                 reviewId: req.body.reviewId,
                 body: req.body.body,
                 createComment: date.toLocaleString(),
