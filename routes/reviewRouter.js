@@ -25,4 +25,6 @@ router.put('/update/:id', reviewController.updateReview);
 
 router.post('/review/:id/like', reviewController.likeReview)
 
+router.get('/product/:id', reviewController.getReviewforProductn)
+
 module.exports = router;
