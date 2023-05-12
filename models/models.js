@@ -31,7 +31,12 @@ const User = sequelize.define('user', {
     likeCount: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
-    }
+    },
+    status: {
+        type: DataTypes.ENUM('active', 'blocked'),
+        allowNull: false,
+        defaultValue: 'active'
+    },
 });
 
 const Review = sequelize.define('review', {

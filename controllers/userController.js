@@ -45,6 +45,9 @@ class UserController {
             return next(ApiError.badRequest('Не верный пароль'));
 
         }
+        if(user.status === 'blocked') {
+            return next(ApiError.badRequest('Вы заблокированы'));
+        }
         const token = generateJwt(user.id, user.name, user.email, user.role, user.registrationDate);
         return res.json({token});
     }
@@ -65,6 +68,41 @@ class UserController {
             return next(ApiError.badRequest('пользователь не найден'));
         }
         res.json(user)
+    }
+
+    async deleteUserId(req, res) {
+        try {
+            const user = await User.findByPk(req.params.id);
+            if (!user) {
+            return res.status(404).send('User not found');
+            }
+            await user.destroy();
+            res.send('User deleted');
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Server Error');
+        }
+    }
+
+    async dataUpdateId(req, res) {
+        const {  status, role } = req.body;
+        try {
+            console.log(req.params.id)
+            const user = await User.findByPk(req.params.id);
+            if (!user) {
+                console.log(req.params.id)
+                return res.status(404).send('User not found');
+            }
+
+            user.status = status;
+            user.role = role;
+            await user.save();
+            res.json(user);
+        } catch (error) {
+            console.error(error);
+            console.log(req.params.id)
+            res.status(500).send('Server Error');
+        }
     }
 }
 

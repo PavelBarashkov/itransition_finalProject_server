@@ -354,6 +354,41 @@ class ReviewController{
     
         res.send('Review liked');
     }
+
+    async getReviewforProductn(req, res, next) {
+        try {
+            const {id} = req.params;
+            const review = await Review.findAll({
+                include: [
+                    {
+                        model: Product,
+                        where: {id: id},
+                        attributes: ['name', 'id', 'averageRating'],
+                        through: {attributes: []},
+
+                    },
+                    {
+                        model: Type,
+                        attributes: ["name"],
+                        through: {attributes: []},  
+                    },
+                    {
+                        model:Tag,
+                        attributes: ['name'],
+                        through: {attributes: []},  
+                    },
+                    {
+                        model: Image,
+                        attributes: ['pathToCloudStorage'],
+                        through: {attributes: []},
+                    },
+                ],
+            })
+            return res.json(review)
+        } catch(e) {
+            return next(ApiError.badRequest(e.message))
+        }
+    }
     
 }
 
